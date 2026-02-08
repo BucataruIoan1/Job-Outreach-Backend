@@ -1,0 +1,10 @@
+# appsettings
+appsettings.json
+appsettings.Development.json
+
+# build
+bin/
+obj/
+
+# user-specific
+.vs/
