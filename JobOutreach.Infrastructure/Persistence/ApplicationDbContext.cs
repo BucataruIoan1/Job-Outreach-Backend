@@ -23,6 +23,7 @@ public class ApplicationDbContext(
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.CompanyPhone).IsRequired().HasMaxLength(50);
             entity.Property(e => e.CompanyEmail).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.CompanyUrl).IsRequired().HasMaxLength(255);
             entity.Property(e => e.IsContacted).IsRequired().HasDefaultValue(false);
         });
 
@@ -49,17 +50,19 @@ public class ApplicationDbContext(
         modelBuilder.Entity<Email>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Subject).IsRequired().HasMaxLength(510);
+            entity.Property(e => e.Subject).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Content).IsRequired(); // MAX by default in EF Core for string without length
-            entity.Property(e => e.Attachment).IsRequired().HasMaxLength(510);
-            entity.Property(e => e.SentBy).IsRequired().HasMaxLength(510);
+            entity.Property(e => e.Attachment).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.SentBy).IsRequired().HasMaxLength(255);
             entity.HasOne(e => e.Country)
                   .WithMany()
                   .HasForeignKey(e => e.CountryId)
-                  .IsRequired();
+                  .IsRequired()
+                  .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(e => e.Position)
                   .WithMany()
-                  .HasForeignKey(e => e.PositionId);
+                  .HasForeignKey(e => e.PositionId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Country>(entity =>
@@ -85,17 +88,17 @@ public class ApplicationDbContext(
             entity.HasOne(e => e.Email)
                 .WithMany()
                 .HasForeignKey(e => e.EmailId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Company)
                 .WithMany()
                 .HasForeignKey(e => e.CompanyId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Position)
                 .WithMany()
                 .HasForeignKey(e => e.PositionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         base.OnModelCreating(modelBuilder);
