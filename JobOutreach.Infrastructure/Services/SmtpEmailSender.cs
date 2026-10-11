@@ -13,7 +13,6 @@ public class SmtpEmailSender(
 
     public async Task SendEmailAsync(string to, string subject, string content, string from, string? attachmentPath)
     {
-        // Preluam setarile SMTP din appsettings.json
         var smtpHost = _configuration["Smtp:Host"] ?? "smtp.gmail.com";
         var smtpPort = int.Parse(_configuration["Smtp:Port"] ?? "587");
         var smtpUser = _configuration["Smtp:Username"];
