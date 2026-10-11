@@ -14,6 +14,7 @@ public class ApplicationDbContext(
     public DbSet<Position> Position { get; set; } = null!;
     public DbSet<CompanyPosition> CompanyPosition { get; set; } = null!;
     public DbSet<EmailSent> EmailSent { get; set; } = null!;
+    public DbSet<CompanyPageSnapshot> CompanyPageSnapshot { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -99,6 +100,23 @@ public class ApplicationDbContext(
                 .WithMany()
                 .HasForeignKey(e => e.PositionId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CompanyPageSnapshot>(entity =>
+        {
+            entity.ToTable("CompanyPageSnapshot");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Url).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.ContentHash).IsRequired().HasMaxLength(64).IsFixedLength().IsUnicode(false); // SHA-256 hex
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.LastCheckedAt).HasDefaultValueSql("SYSDATETIME()");
+            entity.Property(e => e.LastError).HasMaxLength(1000);
+            entity.HasIndex(e => e.CompanyId).IsUnique();
+
+            entity.HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => e.CompanyId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

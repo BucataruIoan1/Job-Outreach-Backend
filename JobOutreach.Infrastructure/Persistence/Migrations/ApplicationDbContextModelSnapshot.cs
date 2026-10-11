@@ -60,6 +60,56 @@ namespace JobOutreach.Infrastructure.Persistence.Migrations
                     b.ToTable("Company");
                 });
 
+            modelBuilder.Entity("JobOutreach.Domain.Entities.CompanyPageSnapshot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<DateTime?>("LastChangedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastCheckedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("LastStatusCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .IsUnique();
+
+                    b.ToTable("CompanyPageSnapshot", (string)null);
+                });
+
             modelBuilder.Entity("JobOutreach.Domain.Entities.CompanyPosition", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -194,6 +244,17 @@ namespace JobOutreach.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Position");
+                });
+
+            modelBuilder.Entity("JobOutreach.Domain.Entities.CompanyPageSnapshot", b =>
+                {
+                    b.HasOne("JobOutreach.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("JobOutreach.Domain.Entities.CompanyPosition", b =>
