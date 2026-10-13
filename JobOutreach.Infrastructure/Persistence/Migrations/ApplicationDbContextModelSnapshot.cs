@@ -50,12 +50,17 @@ namespace JobOutreach.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsContacted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
 
                     b.ToTable("Company");
                 });
@@ -244,6 +249,16 @@ namespace JobOutreach.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Position");
+                });
+
+            modelBuilder.Entity("JobOutreach.Domain.Entities.Company", b =>
+                {
+                    b.HasOne("JobOutreach.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("JobOutreach.Domain.Entities.CompanyPageSnapshot", b =>

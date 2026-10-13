@@ -4,9 +4,13 @@ using JobOutreach.Domain.Entities;
 
 namespace JobOutreach.Application.Services;
 
-public class CompanyService(ICompanyRepository companyRepository) : ICompanyService
+public class CompanyService(
+    ICompanyRepository companyRepository,
+    ICountryRepository countryRepository
+) : ICompanyService
 {
     private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly ICountryRepository _countryRepository = countryRepository;
 
     public async Task<PagedResult<Company>> GetCompaniesPagedAsync(int pageNumber, int pageSize, string? searchTerm = null, string? sortColumn = null, string? sortOrder = null)
         => await _companyRepository.GetPagedAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
@@ -21,7 +25,11 @@ public class CompanyService(ICompanyRepository companyRepository) : ICompanyServ
         => await _companyRepository.GetByIdAsync(id);
 
     public async Task<Company> CreateCompanyAsync(Company company)
-        => await _companyRepository.AddAsync(company);
+    {
+        await EnsureCountryExistsAsync(company.CountryId);
+
+        return await _companyRepository.AddAsync(company);
+    }
 
     public async Task UpdateCompanyAsync(int id, Company company)
     {
@@ -33,7 +41,21 @@ public class CompanyService(ICompanyRepository companyRepository) : ICompanyServ
         existingCompany.CompanyEmail = company.CompanyEmail;
         existingCompany.CompanyUrl = company.CompanyUrl;
 
+        if (company.CountryId.HasValue)
+        {
+            await EnsureCountryExistsAsync(company.CountryId);
+            existingCompany.CountryId = company.CountryId;
+        }
+
         await _companyRepository.UpdateAsync(existingCompany);
+    }
+
+    private async Task EnsureCountryExistsAsync(int? countryId)
+    {
+        if (countryId.HasValue && await _countryRepository.GetByIdAsync(countryId.Value) is null)
+        {
+            throw new ArgumentException($"Country with Id {countryId} not found.");
+        }
     }
 
     public async Task DeleteCompanyAsync(int id)

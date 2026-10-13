@@ -26,6 +26,10 @@ public class ApplicationDbContext(
             entity.Property(e => e.CompanyEmail).IsRequired().HasMaxLength(255);
             entity.Property(e => e.CompanyUrl).IsRequired().HasMaxLength(255);
             entity.Property(e => e.IsContacted).IsRequired().HasDefaultValue(false);
+            entity.HasOne(e => e.Country)
+                  .WithMany()
+                  .HasForeignKey(e => e.CountryId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Company>()

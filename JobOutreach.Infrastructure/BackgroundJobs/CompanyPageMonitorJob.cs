@@ -25,6 +25,7 @@ public class CompanyPageMonitorJob(
 {
     public const string HttpClientName = "CompanyPageMonitor";
 
+    private const int RomaniaCountryId = 1;
     private const int MaxConcurrency = 5;
     private const int MaxErrorLength = 1000;
 
@@ -59,7 +60,7 @@ public class CompanyPageMonitorJob(
 
         var companies = await context.Company
             .AsNoTracking()
-            .Where(c => c.CompanyUrl != "")
+            .Where(c => c.CountryId == RomaniaCountryId && c.CompanyUrl != "")
             .Select(c => new CompanyInfo(c.Id, c.CompanyName, c.CompanyUrl))
             .ToListAsync(cancellationToken);
 

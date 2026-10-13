@@ -58,18 +58,30 @@ public class CompanyController(
             return BadRequest();
         }
 
+        if (createCompanyDto.CountryId <= 0)
+        {
+            return BadRequest("CountryId is required.");
+        }
+
         var company = new Company
         {
             CompanyName = createCompanyDto.CompanyName,
             CompanyPhone = createCompanyDto.CompanyPhone,
             CompanyEmail = createCompanyDto.CompanyEmail,
             CompanyUrl = createCompanyDto.CompanyUrl,
+            CountryId = createCompanyDto.CountryId,
             IsContacted = false // Default to false
         };
 
-        var createdCompany = await _companyService.CreateCompanyAsync(company);
-
-        return CreatedAtAction(nameof(Get), new { id = createdCompany.Id }, createdCompany);
+        try
+        {
+            var createdCompany = await _companyService.CreateCompanyAsync(company);
+            return CreatedAtAction(nameof(Get), new { id = createdCompany.Id }, createdCompany);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
@@ -86,7 +98,8 @@ public class CompanyController(
             CompanyName = updateCompanyDto.CompanyName,
             CompanyPhone = updateCompanyDto.CompanyPhone,
             CompanyEmail = updateCompanyDto.CompanyEmail,
-            CompanyUrl = updateCompanyDto.CompanyUrl
+            CompanyUrl = updateCompanyDto.CompanyUrl,
+            CountryId = updateCompanyDto.CountryId
         };
 
         try
@@ -102,6 +115,10 @@ public class CompanyController(
         catch (KeyNotFoundException)
         {
             return NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
